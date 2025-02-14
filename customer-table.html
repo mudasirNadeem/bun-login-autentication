@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body class="px-20 py-5">
+    <button
+      data-modal-target="popup-modal"
+      data-modal-toggle="popup-modal"
+      class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      type="button"
+    >
+      Add Customer
+    </button>
+    <div
+      id="popup-modal"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    >
+      <div class="relative p-4 w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+          <div
+            class="flex items-center justify-between px-4 py-2 md:px-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+          >
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+              Customer
+            </h3>
+            <button
+              type="button"
+              class="text-gray-400 cursor-pointer bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              data-modal-target="popup-modal"
+              data-modal-toggle="popup-modal"
+            >
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          <div
+            class="min-w-[500px] mx-auto bg-white p-8 py-4 rounded-lg shadow-md"
+          >
+            <form class="w-full" onsubmit="customerForm(event)">
+              <div class="mb-[10px]">
+                <label
+                  for="name"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Name</label
+                >
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="email"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="phone"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Phone</label
+                >
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="(123) 456-7890"
+                />
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="address"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Address</label
+                >
+                <textarea
+                  id="address"
+                  name="address"
+                  required
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  rows="3"
+                  placeholder="123 Main St, City, State, ZIP"
+                ></textarea>
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="customer-type"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Customer Type</label
+                >
+                <select
+                  id="customer-type"
+                  required
+                  name="customer-type"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="">Select customer type</option>
+                  <option value="individual">Individual</option>
+                  <option value="business">Business</option>
+                  <option value="government">Government</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between">
+                <button
+                  type="submit"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="overflow-x-auto mt-3 bg-white shadow-lg">
+      <div class="h-[calc(100vh-93px)] overflow-auto rounded-[10px]">
+        <table class="w-full border-collapse">
+          <thead class="sticky top-0">
+            <tr class="bg-gray-100 text-gray-600">
+              <th scope="col" class="p-3 text-left">Id</th>
+              <th scope="col" class="p-3 text-left">Customer Name</th>
+              <th scope="col" class="p-3 text-left">Email</th>
+              <th scope="col" class="p-3 text-left">Phone</th>
+              <th scope="col" class="p-3 text-left">Status</th>
+              <th scope="col" class="p-3 text-left">Address</th>
+              <th scope="col" class="p-3 text-left">Edit</th>
+              <th scope="col" class="p-3 text-left">Delete</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div
+      id="popup-modal2"
+      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    >
+      <div class="relative p-4 mx-auto w-full max-w-2xl max-h-full">
+        <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+          <div
+            class="flex items-center justify-between px-4 py-2 md:px-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+          >
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+              Edit Customer
+            </h3>
+            <button
+              type="button"
+              onclick="editCustomer(id)"
+              class="text-gray-400 cursor-pointer bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              <svg
+                class="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          <div
+            class="min-w-[500px] mx-auto bg-white p-8 py-4 rounded-lg shadow-md"
+          >
+            <form class="w-full" onsubmit="customerEditForm(event)">
+              <div class="mb-[10px]">
+                <label
+                  for="name"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Name</label
+                >
+                <input
+                  type="text"
+                  id="customer-name"
+                  name="name"
+                  required
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="email"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  id="customer-email"
+                  name="email"
+                  required
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="phone"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Phone</label
+                >
+                <input
+                  type="tel"
+                  id="customer-phone"
+                  name="phone"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="(123) 456-7890"
+                />
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="address"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Address</label
+                >
+                <textarea
+                  id="customer-address"
+                  name="address"
+                  required
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  rows="3"
+                  placeholder="123 Main St, City, State, ZIP"
+                ></textarea>
+              </div>
+              <div class="mb-[10px]">
+                <label
+                  for="customer-type"
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  >Customer Type</label
+                >
+                <select
+                  id="edit-customer-type"
+                  required
+                  name="customer-type"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="">Select customer type</option>
+                  <option value="individual">Individual</option>
+                  <option value="business">Business</option>
+                  <option value="government">Government</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between">
+                <button
+                  type="submit"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        window.location.href = "/";
+      }
+      var customers = [];
+
+      var customerId = 0;
+      async function showCustomer() {
+        var tableBody = document.getElementById("table-body");
+        const response = await fetch("/api/cutomerTable", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        var data = await response.json();
+        customers = data.customers;
+        customers.forEach((customer) => {
+          tableBody.innerHTML += `
+    <tr class="border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200" id="${customer.id}">
+        <td class=" ps-3 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-500">${customer.id}</div>
+                  </td>
+                  <td class=" py-4  whitespace-nowrap">
+                      <div class="text-sm font-medium text-gray-900">${customer.name}</div>
+                  </td>
+                  <td class=" py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-500">${customer.email}</div>
+                  </td>
+                  <td class="py-4 pe-3 whitespace-nowrap text-sm text-gray-500">${customer.phone}</td>
+
+                  <td class=" py-4 whitespace-nowrap">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"> ${customer.customerType}</span>
+                  </td>
+                  <td class="py-4 pe-3 whitespace-nowrap text-sm text-gray-500">${customer.address}</td>
+                  <td class="py-4 pe-3 whitespace-nowrap text-sm text-gray-500">
+                    <button type="button" aria-labelledby="modal-title" role="dialog" aria-modal="true"  onclick = "editCustomer(${customer.id})" class="text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" ><i class="fa fa-edit" style="font-size:24px"></i></button>
+
+                    </td>
+                    
+                  <td class="py-4 pe-3 whitespace-nowrap text-sm text-gray-500"><button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" onclick="deleteCustomer(${customer.id})"><i class="fa fa-trash-o" style="font-size:24px"></i></button></td>
+              </tr>`;
+        });
+      }
+      showCustomer();
+      async function customerForm(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const response = await fetch("/api/customerForm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.get("name"),
+            email: formData.get("email"),
+            phone: formData.get("phone"),
+            address: formData.get("address"),
+            customerType: formData.get("customer-type"),
+          }),
+        });
+        var data = await response.json();
+        if (data.ok) {
+          window.location.href = "/customerstable";
+        } else {
+          alert("The Customer is exsists");
+        }
+      }
+
+      async function deleteCustomer(id) {
+        const response = await fetch("/api/cutomerDelete", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        var data = await response.json();
+        if (data.ok) {
+          var deleteCustomerFromTable = document.getElementById(id);
+          deleteCustomerFromTable.remove();
+        }
+      }
+      function editCustomer(id) {
+        var popoverId = document.getElementById("popup-modal2");
+        popoverId.classList.toggle("hidden");
+        var customer=customers.filter(customer=>customer.id==id)[0];
+        var customerName = document.getElementById('customer-name');
+        var customerEmail = document.getElementById('customer-email');
+        var customerPhone = document.getElementById('customer-phone');
+        var customerType = document.getElementById('edit-customer-type');
+        var customerAddress = document.getElementById('customer-address');
+        customerId = customer.id
+        customerName.value = customer.name;
+        customerEmail.value = customer.email;
+        customerPhone.value = customer.phone;
+        customerAddress.value = customer.address;
+        customerType.value = customer.customerType;
+      }
+
+      async function customerEditForm(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const response = await fetch("/api/customerEditForm", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: customerId,
+            name: formData.get("name"),
+            email: formData.get("email"),
+            phone: formData.get("phone"),
+            address: formData.get("address"),
+            customerType: formData.get("customer-type"),
+          }),
+        });
+        var data = await response.json();
+        if (data.ok) {
+          window.location.href = "/customerstable";
+        } else {
+          alert("Customer is all ready have");
+        }
+      }
+    </script>
+    <script src="style.css" rel="stylesheet"></script>
+  </body>
+</html>
