@@ -17,13 +17,12 @@ db.query(
   `
     CREATE TABLE IF NOT EXISTS customers (
       id INTEGER PRIMARY KEY,
-      user_id INTEGER,
+      userId INTEGER,
       name TEXT,
-      email TEXT unique,
+      email TEXT,
       phone TEXT,
       address TEXT,
-      customerType TEXT,
-      FOREIGN KEY(user_id) REFERENCES users(id)
+      customerType TEXT
     )
   `
 ).run();
@@ -74,18 +73,28 @@ Bun.serve({
         return Response.json({ ok: false, user });
       }
     } else if (url.pathname == "/api/customerForm" && req.method == "POST") {
-      const { name, email, phone, address, customerType } = await req.json();
+      const { name, email, phone, address, customerType,userId } = await req.json();
       try {
+        var user = db
+        .query(
+          `SELECT id, email, userId FROM Customers WHERE email = ? AND userId = ?`
+        )
+        .get(email, userId);
+        if(user){
+          return Response.json({ ok: false,error: error });
+        }
         db.query(
-          `INSERT INTO customers (name, email, phone, address, customerType) VALUES (?, ?,?,?,?)`
-        ).run(name, email, phone, address, customerType);
+          `INSERT INTO customers (name, email, phone, address, customerType,userId) VALUES (?, ?,?,?,?,?)`
+        ).run(name, email, phone, address, customerType,userId);
         return Response.json({ ok: true });
       } catch (error) {
         return Response.json({ ok: false,error: error });
       }
-    }else if (url.pathname == "/api/cutomerTable" && req.method == "GET") {
+    }else if (url.pathname == "/api/customerTable" && req.method == "POST") {
       try {
-        const rows = db.prepare('SELECT * FROM customers').all();
+      const { userId } = await req.json();
+
+        const rows = db.query('SELECT * FROM customers where userId = ?').all(userId);
         if(rows){
           return Response.json({ ok: true , customers : rows});
         }
@@ -101,22 +110,12 @@ Bun.serve({
     else if (url.pathname === "/api/customerEditForm" && req.method === "PUT") {
       try {
         const { id, name, email, phone, address, customerType } = await req.json();
-        var user = db
-        .query(
-          `SELECT name, phone, address, customerType FROM Customers 
-           WHERE name = ? AND phone = ? AND address = ? AND customerType = ? AND email = ?`
-        )
-        .get(name, phone, address, customerType, email);
-        if(user){
-          return Response.json({ ok: false });
-        }
-        else{
+       
           db.query(
             `UPDATE Customers 
              SET name = ?, email = ? , phone = ?, address = ?, customerType = ? WHERE id = ?;`
           ).run(name, email, phone, address, customerType , id);
           return Response.json({ ok: true });
-        }
     
       } catch (error) {
         return Response.json({ ok: false, error: error.message });

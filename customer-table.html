@@ -311,9 +311,11 @@
       var customerId = 0;
       async function showCustomer() {
         var tableBody = document.getElementById("table-body");
-        const response = await fetch("/api/cutomerTable", {
-          method: "GET",
+        const response = await fetch("/api/customerTable", {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: localStorage.getItem('userId') }),
+
         });
         var data = await response.json();
         customers = data.customers;
@@ -357,6 +359,7 @@
             phone: formData.get("phone"),
             address: formData.get("address"),
             customerType: formData.get("customer-type"),
+            userId: localStorage.getItem('userId')
           }),
         });
         var data = await response.json();
