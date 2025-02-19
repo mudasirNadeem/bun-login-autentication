@@ -21,7 +21,7 @@
       var data = await response.json();
       if(data.ok){
         localStorage.setItem('userId', data.user.id);
-          window.location.href = '/customerstable';
+          window.location.href = '/product';
         }
         else{
           alert('you are not register first you need to regiterations')

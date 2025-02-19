@@ -3,14 +3,14 @@ import login from "./index.html";
 import signup from "./sign-up.html";
 import dashboard from "./dashboard.html";
 import customerstable from "./customer-table.html";
+import product from "./product.html";
 
 var db = new Database("userLogin.db");
 db.query(
   `CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE,
-    password TEXT
-  )`
+    password TEXT)`
 ).run();
 
 db.query(
@@ -22,9 +22,17 @@ db.query(
       email TEXT,
       phone TEXT,
       address TEXT,
-      customerType TEXT
-    )
+      customerType TEXT)`
+).run();
+
+db.query(
   `
+    CREATE TABLE IF NOT EXISTS product (
+      id INTEGER PRIMARY KEY,
+      userId INTEGER,
+      picture TEXT,
+      productName TEXT,
+      price  TEXT)`
 ).run();
 
 Bun.serve({
@@ -33,6 +41,7 @@ Bun.serve({
     "/signup": signup,
     "/dashboard": dashboard,
     "/customerstable": customerstable,
+    "/product": product
   },
   async fetch(req) {
     const url = new URL(req.url);
@@ -122,5 +131,31 @@ Bun.serve({
       }
     }
  
+    else if (url.pathname === "/api/product" && req.method === "POST") {
+      try {
+        const { id, productImage, productName, price } = await req.json();
+        db.query(
+          `INSERT INTO product (userId , picture, productName, price) VALUES (?, ?,?,?)`
+        ).run(id,productImage, productName, price);
+      
+          return Response.json({ ok: true });
+    
+      } catch (error) {
+        return Response.json({ ok: false, error: error.message });
+      }
+    }
+    else if (url.pathname === "/api/productsTable" && req.method === "POST") {
+      try {
+        const { userId } = await req.json();
+        const rows = db.query('SELECT * FROM product WhERE userId = ?').all(userId);
+
+        if(rows){
+          return Response.json({ ok: true , product : rows});
+        }
+    
+      } catch (error) {
+        return Response.json({ ok: false, error: error.message });
+      }
+    }
   },
 });
