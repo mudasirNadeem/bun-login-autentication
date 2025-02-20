@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+  />
   </head>
   <body>
     <script>
@@ -12,7 +16,8 @@
       if (!userId) {
         window.location.href = "/";
       }
-      var customerId = userId;
+      var productId = userId;
+      var products = [];
       async function showProducts(){
         const response = await fetch("/api/productsTable", {
           method: "POST",
@@ -23,15 +28,20 @@
         });
         var tableBody = document.getElementById("table-body");
         var data = await response.json();
-  var product = data.product;
-        product.forEach((item) => {
+        products = data.product;
+        products.forEach((item) => {
           tableBody.innerHTML += `
-          <tr  class="border-b hover:bg-gray-50">
+          <tr  class="border-b hover:bg-gray-50" id='${item.id}'>
               <td class="px-4 py-2">
                 <img src="/uploads/${item.picture}"  alt="Image is not show.">
                 </td>
               <td class="px-4 py-2">${item.productName}</td>
               <td class="px-4 py-2">${item.price}</td>
+              <td class="px-4 py-2">
+                    <button type="button" aria-labelledby="modal-title" role="dialog" aria-modal="true"  onclick = "editProduct(${item.id})" class="text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" ><i class="fa fa-edit" style="font-size:24px"></i></button>
+                </td>
+                               <td class="py-4 pe-3 whitespace-nowrap text-sm text-gray-500"><button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" onclick="deleteProduct(${item.id})"><i class="fa fa-trash-o" style="font-size:24px"></i></button></td>
+
               </tr>
           `;
         });
@@ -39,13 +49,13 @@
       }
       async function addProduct(event) {
         event.preventDefault();
-        var picture = document.getElementById('picture');
+        var picture = document.getElementById('picture').value;
         const formData = new FormData(event.target);
         const response = await fetch("/api/product", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            id: customerId,
+            id: productId,
             productImage : picture,
             productName: formData.get("productName"),
             price: formData.get("price"),
@@ -58,6 +68,52 @@
           alert("Customer is all ready have");
         }
        
+      }
+
+     async function deleteProduct(id){
+        const response = await fetch("/api/productDelete", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        var data = await response.json();
+        if (data.ok) {
+          var deleteProduct = document.getElementById(id);
+          deleteProduct.remove();
+        }
+        else{
+          alert('Eorr')
+        }
+      }
+      function editProduct(id) {
+        var popoverId = document.getElementById("popup-modal2");
+        popoverId.classList.toggle("hidden");
+        var product=products.filter(product=>product.id==id)[0];
+        var editImage = document.getElementById('edit-picture');
+        var editName = document.getElementById('edit-name');
+        var editPrice = document.getElementById('edit-price');
+        editName.value = product.productName;
+        editPrice.value = product.price;
+        productId = product.id
+      }
+      async function handleProduct(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const response = await fetch("/api/editProduct", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            id: productId,
+            productName: formData.get("edit-productName"),
+            price: formData.get("edit-price"),
+          }),
+        });
+        var data = await response.json();
+        if (data.ok) {
+          window.location.href = "/product";
+        } else {
+          alert("Customer is all ready have");
+        }
       }
       showProducts();
     </script>
@@ -122,6 +178,7 @@
                   type="file"
                   id="picture"
                   name="picture"
+                  required
                   accept="image/jpeg, image/png, image/jpg"
                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   placeholder="Picture"
@@ -177,11 +234,113 @@
             <th class="px-4 text-left py-2">Picture</th>
             <th class="px-4 text-left py-2">Name</th>
             <th class="px-4 text-left py-2">Price</th>
+            <th class="px-4 text-left py-2">Edit</th>
+            <th class="px-4 text-left py-2">delete</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
       </table>
     </div>
+    <div
+    id="popup-modal2"
+    aria-labelledby="modal-title"
+    role="dialog"
+    aria-modal="true"
+    class="hidden m-auto flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+  >
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+      <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+        <div
+          class="flex items-center justify-between px-4 py-2 md:px-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+        >
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Edit Product
+          </h3>
+          <button
+            type="button"
+            class="text-gray-400 cursor-pointer bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            onclick="editProduct()"
+          >
+            <svg
+              class="w-3 h-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <div
+          class="min-w-[500px] mx-auto bg-white p-8 py-4 rounded-lg shadow-md"
+        >
+          <form class="w-full" onsubmit="handleProduct(event)">
+            <div class="mb-[10px]">
+              <label
+                for="name"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Product Picture</label
+              >
+              <input
+                type="file"
+                id="edit-picture"
+                name="edit-picture"
+                accept="image/jpeg, image/png, image/jpg"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="Picture"
+              />
+            </div>
+            <div class="mb-[10px]">
+              <label
+                for="name"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Product Name</label
+              >
+              <input
+                type="text"
+                id="edit-name"
+                name="edit-productName"
+                required
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="Add Name"
+              />
+            </div>
+            <div class="mb-[10px]">
+              <label
+                for="name"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                >Product Price</label
+              >
+              <input
+                type="number"
+                id="edit-price"
+                name="edit-price"
+                required
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="Add Price"
+              />
+            </div>
+            <div class="flex items-center justify-between">
+              <button
+                type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
     <script src="style.css" rel="stylesheet"></script>
   </body>
 </html>

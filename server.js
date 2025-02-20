@@ -157,5 +157,30 @@ Bun.serve({
         return Response.json({ ok: false, error: error.message });
       }
     }
+
+    else if (url.pathname == "/api/productDelete" && req.method == "DELETE") {
+      try {
+        const {id} = await req.json();
+        db.query(`DELETE FROM product WHERE id = ?;`).run(id);
+        return Response.json({ ok: true,  });
+      } catch (error) {
+        return Response.json({ ok: false, error: error.message });
+      }
+
+    }
+
+    else if (url.pathname === "/api/editProduct" && req.method === "PUT") {
+      try {
+        const { id, productName , price } = await req.json();
+       
+          db.query(
+            `UPDATE product 
+             SET productName = ?,  price = ? WHERE id = ?;`
+          ).run(productName, price, id);
+          return Response.json({ ok: true });
+      } catch (error) {
+        return Response.json({ ok: false, error: error.message });
+      }
+    }
   },
 });
