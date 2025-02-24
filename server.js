@@ -4,6 +4,8 @@ import signup from "./sign-up.html";
 import dashboard from "./dashboard.html";
 import customerstable from "./customer-table.html";
 import product from "./product.html";
+import discount from "./discount.html";
+
 
 var db = new Database("userLogin.db");
 db.query(
@@ -35,13 +37,23 @@ db.query(
       price  TEXT)`
 ).run();
 
+db.query(
+  `
+    CREATE TABLE IF NOT EXISTS Discount (
+      id INTEGER PRIMARY KEY,
+      userId INTEGER,
+      customerId INTEGER,
+      discount INTEGER)`
+).run();
+
 Bun.serve({
   static: {
     "/": login,
     "/signup": signup,
     "/dashboard": dashboard,
     "/customerstable": customerstable,
-    "/product": product
+    "/product": product,
+    "/discount" : discount
   },
   async fetch(req) {
     const url = new URL(req.url);
@@ -180,6 +192,28 @@ Bun.serve({
           return Response.json({ ok: true });
       } catch (error) {
         return Response.json({ ok: false, error: error.message });
+      }
+    }
+    else if (url.pathname == "/api/showCustomers" && req.method == "POST") {
+      try {
+        const rows = db.query('SELECT * FROM customers').all();
+        if(rows){
+          return Response.json({ ok: true , customers : rows});
+        }
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
+      }
+    }
+
+    else if (url.pathname == "/api/discount" && req.method == "POST") {
+      try {
+        const {userId , customerId , emailSelect , discount } = await req.json();
+        const customersRows = db.query('SELECT * FROM customers where userId = ?').all(userId);
+        var customer = db.query('SELECT * FROM customers where email = ?').all(emailSelect);
+        var discountRow = db.query(  `INSERT INTO discount (userId , customerId,  discount) VALUES (?,?,?)`).run(userId , customerId, discount);
+          return Response.json({ ok: true , customers : customersRows , customer : customer});
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
       }
     }
   },

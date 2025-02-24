@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+<script>
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    window.location.href = "/";
+  }
+  var customerId;
+  var user;
+  async function showCustomer() {
+    const response = await fetch("/api/showCustomers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    var selectBody = document.getElementById("customers");
+    var data = await response.json();
+    data.customers.forEach(customer => {
+      user = customer.userId;
+      selectBody.innerHTML += `
+   <option value="${customer.id}">${customer.email}</option>`
+    });
+  }
+  function selectCustomer(value) {
+    customerId = value;
+  }
+  async function addDiscount(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const response = await fetch("/api/discount", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user,
+        customerId: customerId,
+        emailSelect: formData.get("select"),
+        discount: formData.get("discount")
+      }),
+    });
+    var data = await response.json();
+
+    if (data.ok) {
+      window.location.href = "/product";
+    }
+  }
+  showCustomer();
+</script>
+
+<body>
+  <button data-modal-target="popup-modal" data-modal-toggle="popup-modal"
+    class="block mt-5 ms-15 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+    type="button">
+    Add discount
+  </button>
+  <div id="popup-modal" aria-labelledby="modal-title" role="dialog" aria-modal="true"
+    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-2xl max-h-full">
+      <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+        <div
+          class="flex items-center justify-between px-4 py-2 md:px-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Add Discount
+          </h3>
+          <button type="button"
+            class="text-gray-400 cursor-pointer bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            data-modal-target="popup-modal" data-modal-toggle="popup-modal">
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <div class="min-w-[500px] mx-auto bg-white p-8 py-4 rounded-lg shadow-md">
+          <form class="w-full" onsubmit="addDiscount(event)">
+            <div class="mb-[10px]">
+              <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Select Customer</label>
+              <select id="customers" onchange="selectCustomer(value)" required name="select"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option selected value="0">No Customer</option>
+              </select>
+            </div>
+            <div class="mb-[10px]">
+              <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Add Discount</label>
+              <input required placeholder="Enter discount" type="text" id="discount" name="discount"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); if (parseFloat(this.value) > 10) { alert('max-0'); this.value = '0'; }" />
+            </div>
+            <div class="flex items-center justify-between">
+              <button type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="style.css" rel="stylesheet"></script>
+</body>
+
+</html>
