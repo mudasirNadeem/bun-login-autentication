@@ -39,11 +39,12 @@ db.query(
 
 db.query(
   `
-    CREATE TABLE IF NOT EXISTS Discount (
+    CREATE TABLE IF NOT EXISTS discount (
       id INTEGER PRIMARY KEY,
       userId INTEGER,
       customerId INTEGER,
-      discount INTEGER)`
+      email Text,
+      discount TEXt)`
 ).run();
 
 Bun.serve({
@@ -197,8 +198,9 @@ Bun.serve({
     else if (url.pathname == "/api/showCustomers" && req.method == "POST") {
       try {
         const rows = db.query('SELECT * FROM customers').all();
+        const discountRows = db.query('SELECT * FROM discount').all();
         if(rows){
-          return Response.json({ ok: true , customers : rows});
+          return Response.json({ ok: true , customers : rows , discount : discountRows});
         }
       } catch (error) {
         return Response.json({ ok: false,error: error });
@@ -210,11 +212,38 @@ Bun.serve({
         const {userId , customerId , emailSelect , discount } = await req.json();
         const customersRows = db.query('SELECT * FROM customers where userId = ?').all(userId);
         var customer = db.query('SELECT * FROM customers where email = ?').all(emailSelect);
-        var discountRow = db.query(  `INSERT INTO discount (userId , customerId,  discount) VALUES (?,?,?)`).run(userId , customerId, discount);
+        var discountRow = db.query(  `INSERT INTO discount (userId , customerId, email ,  discount) VALUES (?,?,?,?)`).run(userId , customerId, emailSelect, discount);
           return Response.json({ ok: true , customers : customersRows , customer : customer});
       } catch (error) {
         return Response.json({ ok: false,error: error });
       }
+    }
+
+    else if (url.pathname == "/api/discountEdit" && req.method == "POST") {
+      try {
+        const {id} = await req.json();
+        const rows = db.query('SELECT * FROM discount where id = ?').all(id);
+          return Response.json({ ok: true , discount : rows});
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
+      }
+    }
+
+    else if (url.pathname == "/api/discount" && req.method == "PUT") {
+      try {
+        const {id , emailEdit , discount} = await req.json();
+        const rows = db.query( `UPDATE discount 
+          SET email = ?,  discount = ? WHERE id = ?`).run(emailEdit, discount, id);
+          return Response.json({ ok: true});
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
+      }
+    }
+
+    else if (url.pathname == "/api/discountDelete" && req.method == "DELETE") {
+      const {id} = await req.json();
+      db.query(`DELETE FROM discount WHERE id = ?;`).run(id);
+      return Response.json({ ok: true,  });
     }
   },
 });
