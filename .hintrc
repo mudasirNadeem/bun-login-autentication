@@ -8,6 +8,13 @@
       {
         "select-name": "off"
       }
-    ]
+    ],
+    "axe/aria": [
+      "default",
+      {
+        "aria-required-parent": "off"
+      }
+    ],
+    "no-inline-styles": "off"
   }
 }

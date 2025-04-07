@@ -5,8 +5,7 @@ import dashboard from "./dashboard.html";
 import customerstable from "./customer-table.html";
 import product from "./product.html";
 import discount from "./discount.html";
-
-
+import pos from "./pos.html";
 var db = new Database("userLogin.db");
 db.query(
   `CREATE TABLE IF NOT EXISTS users (
@@ -43,8 +42,18 @@ db.query(
       id INTEGER PRIMARY KEY,
       userId INTEGER,
       customerId INTEGER,
-      email Text,
       discount TEXt)`
+).run();
+
+db.query(
+  `
+    CREATE TABLE IF NOT EXISTS sale (
+      id INTEGER PRIMARY KEY,
+      userId INTEGER,
+      name Text,
+      price Text,
+      qunatity Text,
+      totalPrice Text )`
 ).run();
 
 Bun.serve({
@@ -54,7 +63,8 @@ Bun.serve({
     "/dashboard": dashboard,
     "/customerstable": customerstable,
     "/product": product,
-    "/discount" : discount
+    "/discount" : discount,
+    "/pos" : pos,
   },
   async fetch(req) {
     const url = new URL(req.url);
@@ -143,7 +153,6 @@ Bun.serve({
         return Response.json({ ok: false, error: error.message });
       }
     }
- 
     else if (url.pathname === "/api/product" && req.method === "POST") {
       try {
         const { id, productImage, productName, price } = await req.json();
@@ -170,7 +179,6 @@ Bun.serve({
         return Response.json({ ok: false, error: error.message });
       }
     }
-
     else if (url.pathname == "/api/productDelete" && req.method == "DELETE") {
       try {
         const {id} = await req.json();
@@ -179,9 +187,7 @@ Bun.serve({
       } catch (error) {
         return Response.json({ ok: false, error: error.message });
       }
-
     }
-
     else if (url.pathname === "/api/editProduct" && req.method === "PUT") {
       try {
         const { id, productName , price } = await req.json();
@@ -197,8 +203,9 @@ Bun.serve({
     }
     else if (url.pathname == "/api/showCustomers" && req.method == "POST") {
       try {
-        const rows = db.query('SELECT * FROM customers').all();
-        const discountRows = db.query('SELECT * FROM discount').all();
+        const { userId } = await req.json();
+        const rows = db.query('SELECT * FROM customers WHERE UserId = ?').all(userId);
+        const discountRows = db.query('SELECT customers.name, discount.discount, discount.id FROM customers INNER JOIN discount ON customers.id = discount.customerId').all();
         if(rows){
           return Response.json({ ok: true , customers : rows , discount : discountRows});
         }
@@ -206,19 +213,15 @@ Bun.serve({
         return Response.json({ ok: false,error: error });
       }
     }
-
     else if (url.pathname == "/api/discount" && req.method == "POST") {
       try {
-        const {userId , customerId , emailSelect , discount } = await req.json();
-        const customersRows = db.query('SELECT * FROM customers where userId = ?').all(userId);
-        var customer = db.query('SELECT * FROM customers where email = ?').all(emailSelect);
-        var discountRow = db.query(  `INSERT INTO discount (userId , customerId, email ,  discount) VALUES (?,?,?,?)`).run(userId , customerId, emailSelect, discount);
-          return Response.json({ ok: true , customers : customersRows , customer : customer});
+        const {userId , customerId  , discount } = await req.json();
+        var discountRow = db.query(  `INSERT INTO discount (userId , customerId ,  discount) VALUES (?,?,?)`).run(userId , customerId, discount);
+          return Response.json({ ok: true });
       } catch (error) {
         return Response.json({ ok: false,error: error });
       }
     }
-
     else if (url.pathname == "/api/discountEdit" && req.method == "POST") {
       try {
         const {id} = await req.json();
@@ -228,22 +231,55 @@ Bun.serve({
         return Response.json({ ok: false,error: error });
       }
     }
-
     else if (url.pathname == "/api/discount" && req.method == "PUT") {
       try {
-        const {id , emailEdit , discount} = await req.json();
+        const {id  , discount} = await req.json();
         const rows = db.query( `UPDATE discount 
-          SET email = ?,  discount = ? WHERE id = ?`).run(emailEdit, discount, id);
+          SET  discount = ? WHERE id = ?`).run(discount, id);
           return Response.json({ ok: true});
       } catch (error) {
         return Response.json({ ok: false,error: error });
       }
     }
-
     else if (url.pathname == "/api/discountDelete" && req.method == "DELETE") {
       const {id} = await req.json();
       db.query(`DELETE FROM discount WHERE id = ?;`).run(id);
       return Response.json({ ok: true,  });
+    }
+    else if (url.pathname == "/api/showProduct" && req.method == "POST") {
+      try {
+        const {userId} = await req.json();
+        var getProduct = db
+        .query(
+          `SELECT * FROM product WHERE userId = ?`
+        )
+        .all(userId);
+        return Response.json({ ok: true, getProduct });
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
+      }
+    }
+    else if (url.pathname == "/api/saleProduct" && req.method == "POST") {
+      try {
+        const {id} = await req.json();
+        var saleProduct = db
+        .query(
+          `SELECT * FROM product WHERE id = ?`
+        )
+        .all(id);
+        return Response.json({ ok: true, saleProduct });
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
+      }
+    }
+
+    else if (url.pathname == "/api/showSaleProduct" && req.method == "POST") {
+      try {
+        const {id} = await req.json();
+        return Response.json({ ok: true, saleProduct });
+      } catch (error) {
+        return Response.json({ ok: false,error: error });
+      }
     }
   },
 });
