@@ -13,7 +13,6 @@ db.query(
     username TEXT UNIQUE,
     password TEXT)`
 ).run();
-
 db.query(
   `
     CREATE TABLE IF NOT EXISTS customers (
@@ -25,7 +24,6 @@ db.query(
       address TEXT,
       customerType TEXT)`
 ).run();
-
 db.query(
   `
     CREATE TABLE IF NOT EXISTS product (
@@ -35,7 +33,6 @@ db.query(
       productName TEXT,
       price  TEXT)`
 ).run();
-
 db.query(
   `
     CREATE TABLE IF NOT EXISTS discount (
@@ -44,18 +41,16 @@ db.query(
       customerId INTEGER,
       discount TEXt)`
 ).run();
-
 db.query(
   `
     CREATE TABLE IF NOT EXISTS sale (
       id INTEGER PRIMARY KEY,
-      userId INTEGER,
+      userId Text,
       name Text,
       price Text,
-      qunatity Text,
-      totalPrice Text )`
+      quantity Text,
+      totalPrice INTEGER )`
 ).run();
-
 Bun.serve({
   static: {
     "/": login,
@@ -272,14 +267,35 @@ Bun.serve({
         return Response.json({ ok: false,error: error });
       }
     }
-
     else if (url.pathname == "/api/showSaleProduct" && req.method == "POST") {
       try {
-        const {id} = await req.json();
-        return Response.json({ ok: true, saleProduct });
+        const { userId, name, price, quantity, totalPrice } = await req.json();
+        db.query(
+          `INSERT INTO sale (userId, name, price, quantity, totalPrice) VALUES (?, ?, ?, ?, ?)`
+        ).run(userId, name, price, quantity, totalPrice);
+        return Response.json({ ok: true });
       } catch (error) {
-        return Response.json({ ok: false,error: error });
+        return Response.json({ ok: false, error: error.message });
       }
     }
+    else if (url.pathname == "/api/purchaseProductShow" && req.method == "POST") {
+    try {
+      const { userId } = await req.json();
+      var saleItems = db.query(`SELECT * FROM sale WHERE userId = ?`).all(userId);
+      return Response.json({ ok: true, saleItems });
+    } catch (error) {
+      return Response.json({ ok: false,error: error });
+    }
+  }
+
+  else if (url.pathname == "/api/deleteSaleProduct" && req.method == "DELETE") {
+    try {
+      const { id } = await req.json();
+      db.query(`DELETE FROM sale WHERE id = ?;`).run(id);
+      return Response.json({ ok: true});
+    } catch (error) {
+      return Response.json({ ok: false,error: error });
+    }
+  }
   },
 });

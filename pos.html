@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+ 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -32,7 +32,6 @@
       });
     }
    var saleItemsName ;
-   var saleItemsQuantity  = document.getElementById('number-input');
    var saleItemsPrice ;
    var saleItemsTotalPrice ;
     async function saleProduct(id) {
@@ -47,29 +46,80 @@
       data.saleProduct.forEach( item => {
       saleItemsName = item.productName;
       saleItemsPrice = item.price;
-      })
+      });
     }
    function hiddenModal(){
         var modal = document.getElementById('default-modal');
     modal.classList.toggle('hidden')
    }
   async function SaleItemsFun(){
-    var totalSalePrice = eval(quanity * price);
+   var saleItemsQuantity  = document.getElementById('number-input').value;
+ var firstIndex =   saleItemsQuantity[0] == '0';
+   if(saleItemsQuantity == '' || saleItemsQuantity == "0" || firstIndex){
+    alert('Please the field is required')
+   }
+   else{
+    var totalSalePrice = eval(saleItemsQuantity * saleItemsPrice);
       const response = await fetch("/api/showSaleProduct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
+          userId : userId,
           name : saleItemsName,
           price : saleItemsPrice,
-          quantit : saleItemsQuantity.value,
+          quantity : saleItemsQuantity,
           totalPrice : totalSalePrice,
          }),
       });
+      var data = await response.json();
+      if(!data.ok){
+        alert(data.error)
+      }
+      location.reload();
+   }
 
-      var modal = document.getElementById('default-modal');
-      modal.classList.toggle('hidden');
 }
    showProducts();
+   async function saleProductShowFun() {
+  const response = await fetch("/api/purchaseProductShow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: userId }),
+  });
+  
+  var data = await response.json();
+  var saleProduct = document.getElementById('sale-product');
+  var totalSale = parseInt(document.getElementById('totalSale').innerText) || 0;
+  data.saleItems.forEach(item => {
+    totalSale += item.totalPrice; 
+    saleProduct.innerHTML += `<tr>
+      <td>${item.name}</td>
+      <td>${item.price}</td>
+      <td>${item.quantity}</td>
+      <td>${item.totalPrice}</td>
+      <td>
+        <button type="button" class="px-2 py-1 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">update</button>
+        <button type="button" class="focus:outline-none !py-1 !px-2 !me-0 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900" onclick="deleteItems(${item.id})">Delete</button>
+        </td>
+    </tr>`;
+  });
+  document.getElementById('totalSale').innerText = totalSale;
+}
+   saleProductShowFun();
+
+   async function deleteItems(id) {
+    const response = await fetch("/api/deleteSaleProduct", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          id : id
+         }),
+      });
+      var data = await response.json();
+      if(data.ok){
+        location.reload();
+      }
+   }
   </script>
   <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -257,26 +307,25 @@
             <th class="text-left">Price</th>
             <th class="text-left">Quantity</th>
             <th class="text-left">Total Price</th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
-        <tbody id="sale-product flex justify-start items-start" style="    height: calc(100vh - 194px);">
-          <td>d</td>
-          <td>d</td>
+        <tbody id="sale-product" class="" style=" height: calc(100vh - 194px);">
         </tbody>
         <tfoot>
           <tr>
             <td>
-              Total Price 
+              Total Sale 
             </td>
-            <td>
-              250
+            <td id="totalSale">
+              0
             </td>
           </tr>
       </tfoot>
       </table>
     </div>
   </div>
-<div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto  overflow-x-hidden  z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+<div id="default-modal" tabindex="-1" class="hidden overflow-y-auto  overflow-x-hidden  z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
     <div class="z-50 p-4 w-full fixed left-1/2 transform -translate-x-1/2 -translate-y-1/2  top-1/2 max-w-2xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
@@ -286,7 +335,7 @@
                     Select a Quantity
                 </h3>
                 <button type="button" onclick="hiddenModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="default-modal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <svg class="w-3 h-3"  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                     </svg>
                     <span class="sr-only">Close modal</span>
@@ -295,7 +344,7 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 space-y-4">
               <label for="number-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select a quantity</label>
-              <input type="number" id="number-input" min="1" aria-describedby="helper-text-explanation" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1 2 3 4 5...." required />
+              <input type="number" id="number-input" min="1" aria-describedby="helper-text-explanation" class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1 2 3 4 5...." required="required" />
             </div>
             <!-- Modal footer -->
             <div class="flex items-center justify-end p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
